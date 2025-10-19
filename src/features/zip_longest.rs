@@ -4,75 +4,48 @@ use core::{
 };
 
 use futures_lite::{Stream, StreamExt, ready, stream::Fuse};
+use option_entry::{Entry, OptionEntry};
 use pin_project_lite::pin_project;
 
-use crate::{
-    EitherOrBoth,
-    internal::{
-        check::assert_stream,
-        either_or_none::{EitherOrNone, Entry},
-    },
-};
+use crate::{EitherOrBoth, internal::check::assert_stream};
 
 /// See [`crate::AsyncItertools::zip_longest`].
 pub fn zip_longest<L: Stream, R: Stream>(l: L, r: R) -> crate::ZipLongest<L, R> {
     assert_stream(ZipLongest {
         l: l.fuse(),
         r: r.fuse(),
-        ready: EitherOrNone::None,
+        left_item: None,
     })
 }
 
 pin_project! {
-    pub struct ZipLongest<L, R, Lt = <L as Stream>::Item, Rt = <R as Stream>::Item> {
+    pub struct ZipLongest<L, R, Lt = <L as Stream>::Item> {
         #[pin]
         l: Fuse<L>,
         #[pin]
         r: Fuse<R>,
-        ready: EitherOrNone<Lt, Rt>,
+        left_item: Option<Lt>,
     }
 }
 
-impl<L: Stream<Item = Lt>, R: Stream<Item = Rt>, Lt, Rt> Stream for ZipLongest<L, R, Lt, Rt> {
+impl<L: Stream<Item = Lt>, R: Stream<Item = Rt>, Lt, Rt> Stream for ZipLongest<L, R, Lt> {
     type Item = EitherOrBoth<Lt, Rt>;
 
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
-        match this.ready.entry() {
-            Entry::None(entry) => {
-                let l = this.l.poll_next(cx);
-                let r = this.r.poll_next(cx);
-                match (l, r) {
-                    (Poll::Ready(Some(l)), Poll::Ready(Some(r))) => {
-                        Poll::Ready(Some(EitherOrBoth::Both(l, r)))
-                    }
-                    (Poll::Ready(None), Poll::Ready(Some(r))) => {
-                        Poll::Ready(Some(EitherOrBoth::Right(r)))
-                    }
-                    (Poll::Ready(Some(l)), Poll::Ready(None)) => {
-                        Poll::Ready(Some(EitherOrBoth::Left(l)))
-                    }
-                    (Poll::Ready(None), Poll::Ready(None)) => Poll::Ready(None),
-                    (Poll::Ready(Some(l)), Poll::Pending) => {
-                        entry.insert_left(l);
-                        Poll::Pending
-                    }
-                    (Poll::Pending, Poll::Ready(Some(r))) => {
-                        entry.insert_right(r);
-                        Poll::Pending
-                    }
-                    _ => Poll::Pending,
-                }
+        let l = match this.left_item.entry() {
+            Entry::Vacant(entry) => {
+                let Some(l) = ready!(this.l.poll_next(cx)) else {
+                    return Poll::Ready(ready!(this.r.poll_next(cx)).map(EitherOrBoth::Right));
+                };
+                entry.insert_entry(l)
             }
-            Entry::Left(entry) => match ready!(this.r.poll_next(cx)) {
-                Some(r) => Poll::Ready(Some(EitherOrBoth::Both(entry.remove(), r))),
-                None => Poll::Ready(Some(EitherOrBoth::Left(entry.remove()))),
-            },
-            Entry::Right(entry) => match ready!(this.l.poll_next(cx)) {
-                Some(l) => Poll::Ready(Some(EitherOrBoth::Both(l, entry.remove()))),
-                None => Poll::Ready(Some(EitherOrBoth::Right(entry.remove()))),
-            },
-        }
+            Entry::Occupied(entry) => entry,
+        };
+        let Some(r) = ready!(this.r.poll_next(cx)) else {
+            return Poll::Ready(Some(EitherOrBoth::Left(l.remove())));
+        };
+        Poll::Ready(Some(EitherOrBoth::Both(l.remove(), r)))
     }
 }
 

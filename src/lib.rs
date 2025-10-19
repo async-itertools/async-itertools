@@ -35,5 +35,5 @@ pub trait AsyncItertools: Stream {
 
 impl<T: ?Sized + Stream> AsyncItertools for T {}
 
-/// Type for [`AsyncItertools::zip_longest`].
+/// Stream for the [`AsyncItertools::zip_longest()`] method.
 pub type ZipLongest<L, R> = self::features::zip_longest::ZipLongest<L, R>;

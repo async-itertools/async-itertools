@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- `zip_longest` no longer polls both streams at once
+
 ## [0.0.0-a.0] — 2025-10-19
 
 ### Added

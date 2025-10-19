@@ -1,6 +1,6 @@
 [package]
 name = "async-itertools"
-version = "0.0.0-a.0"
+version = "0.0.0-a.1"
 edition = "2024"
 publish = true
 repository = "https://github.com/async-itertools/async-itertools"
