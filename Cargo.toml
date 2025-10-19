@@ -8,7 +8,7 @@ authors = ["Alisa Feistel <alisafeistel@gmail.com>"]
 license = "MIT OR Apache-2.0"
 rust-version = "1.90"
 description = "`itertools` for `Stream`s"
-exclude = ["/.github", "/.gitignore", "/.vscode", "CHANGELOG.md", "CONTRIBUTING.md"]
+exclude = ["/.github", "/.gitignore", "/.vscode", "CHANGELOG.md", "CONTRIBUTING.md", "MAINTAINING.md"]
 
 [dependencies]
 futures-lite = "2.6.1"
