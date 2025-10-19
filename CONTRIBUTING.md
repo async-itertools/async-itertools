@@ -16,7 +16,7 @@ In short: <https://docs.rs/itertools> but for <https://docs.rs/futures-lite>.
 - What do we not include?
   - New functionality that isn't yet present for iterators.
   - Variants of existing adapters that are closely tied to scheduling. For example, `zip_lazy` that
-    polls the second stream only after it got an item from the first.
+    polls the second stream only after it got an item from the first, or the opposite of that.
 
 ## Submitting code
 
