@@ -1,8 +1,7 @@
 # Maintaining `async-itertools` releases
 
-Presently, the project's releases are maintained using proprietary builds of `tagit`. We expect to
-have open-source builds at <https://github.com/parrrate/opentagit> to be published by the end of
-February 2026.
+Presently, the project's releases are maintained using proprietary builds of `tagit`. Open-source
+releases are available at <https://github.com/parrrate/opentagit>.
 
 ## Updating the version
 
