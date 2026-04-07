@@ -13,7 +13,13 @@
 
 use futures_lite::Stream;
 
-pub use self::{features::zip_longest::zip_longest, types::either_or_both::EitherOrBoth};
+pub use self::{
+    features::{
+        coalesce::{Coalesce, coalesce},
+        zip_longest::zip_longest,
+    },
+    types::either_or_both::EitherOrBoth,
+};
 
 mod features;
 mod internal;
@@ -30,6 +36,14 @@ pub trait AsyncItertools: Stream {
         U: Stream,
     {
         zip_longest(self, other)
+    }
+
+    fn coalesce<F>(self, f: F) -> Coalesce<Self, F>
+    where
+        Self: Sized,
+        F: FnMut(Self::Item, Self::Item) -> Result<Self::Item, (Self::Item, Self::Item)>,
+    {
+        coalesce(self, f)
     }
 }
 
