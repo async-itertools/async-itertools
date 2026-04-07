@@ -89,3 +89,41 @@ where
         f,
     })
 }
+
+pub type DedupBy<S, Pred> = CoalesceBy<S, DedupPred2CoalescePred<Pred>, NoCount>;
+
+pub struct DedupPred2CoalescePred<DP>(DP);
+
+pub trait DedupPredicate<T> {
+    fn dedup_pair(&mut self, a: &T, b: &T) -> bool;
+}
+
+impl<DP, T> CoalescePredicate<T, T> for DedupPred2CoalescePred<DP>
+where
+    DP: DedupPredicate<T>,
+{
+    fn coalesce_pair(&mut self, t: T, item: T) -> Result<T, (T, T)> {
+        if self.0.dedup_pair(&t, &item) {
+            Ok(t)
+        } else {
+            Err((t, item))
+        }
+    }
+}
+
+impl<T, F: FnMut(&T, &T) -> bool> DedupPredicate<T> for F {
+    fn dedup_pair(&mut self, a: &T, b: &T) -> bool {
+        self(a, b)
+    }
+}
+
+pub fn dedup_by<S: Stream, Pred>(stream: S, dedup_pred: Pred) -> DedupBy<S, Pred>
+where
+    Pred: FnMut(&S::Item, &S::Item) -> bool,
+{
+    assert_stream(CoalesceBy {
+        stream,
+        last: None,
+        f: DedupPred2CoalescePred(dedup_pred),
+    })
+}

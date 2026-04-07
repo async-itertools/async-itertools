@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.0.0-a.3] — 2026-04-07
+
+### Added
+
+- `dedup_by`
+
 ## [0.0.0-a.2] — 2026-04-07
 
 ### Added
@@ -22,7 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `zip_longest`
 
-[unreleased]: https://github.com/async-itertools/async-itertools/compare/0.0.0-a.2...HEAD
+[unreleased]: https://github.com/async-itertools/async-itertools/compare/0.0.0-a.3...HEAD
+[0.0.0-a.3]: https://github.com/async-itertools/async-itertools/compare/0.0.0-a.2...0.0.0-a.3
 [0.0.0-a.2]: https://github.com/async-itertools/async-itertools/compare/0.0.0-a.1...0.0.0-a.2
 [0.0.0-a.1]: https://github.com/async-itertools/async-itertools/compare/0.0.0-a.0...0.0.0-a.1
 [0.0.0-a.0]: https://github.com/async-itertools/async-itertools/releases/tag/0.0.0-a.0
