@@ -111,6 +111,14 @@ where
     }
 }
 
+pub struct DedupEq;
+
+impl<T: PartialEq> DedupPredicate<T> for DedupEq {
+    fn dedup_pair(&mut self, a: &T, b: &T) -> bool {
+        a == b
+    }
+}
+
 impl<T, F: FnMut(&T, &T) -> bool> DedupPredicate<T> for F {
     fn dedup_pair(&mut self, a: &T, b: &T) -> bool {
         self(a, b)
@@ -125,5 +133,15 @@ where
         stream,
         last: None,
         f: DedupPred2CoalescePred(dedup_pred),
+    })
+}
+
+pub type Dedup<S> = DedupBy<S, DedupEq>;
+
+pub fn dedup<S: Stream<Item: PartialEq>>(stream: S) -> Dedup<S> {
+    assert_stream(CoalesceBy {
+        stream,
+        last: None,
+        f: DedupPred2CoalescePred(DedupEq),
     })
 }

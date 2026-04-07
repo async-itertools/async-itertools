@@ -15,7 +15,7 @@ use futures_lite::Stream;
 
 pub use self::{
     features::{
-        coalesce::{Coalesce, DedupBy, coalesce, dedup_by},
+        coalesce::{Coalesce, Dedup, DedupBy, coalesce, dedup, dedup_by},
         zip_longest::zip_longest,
     },
     types::either_or_both::EitherOrBoth,
@@ -52,6 +52,14 @@ pub trait AsyncItertools: Stream {
         F: FnMut(&Self::Item, &Self::Item) -> bool,
     {
         dedup_by(self, f)
+    }
+
+    fn dedup(self) -> Dedup<Self>
+    where
+        Self: Sized,
+        Self::Item: PartialEq,
+    {
+        dedup(self)
     }
 }
 
